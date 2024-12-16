@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <limits.h>
+
+#define MAX_PAGES 100
+#define MAX_FRAMES 100
+
+void lruPaging(int pages[], int n, int frames[], int capacity) {
+    int pageFaults = 0;
+    int time[MAX_FRAMES];
+    int counter = 0;
+
+    for (int i = 0; i < capacity; i++) {
+        frames[i] = -1;
+        time[i] = 0;
+    }
+
+    printf("Page Reference String\tFrames\n");
+
+    for (int i = 0; i < n; i++) {
+        int found = 0;
+
+        for (int j = 0; j < capacity; j++) {
+            if (frames[j] == pages[i]) {
+                found = 1;
+                time[j] = ++counter; // Update time for the accessed frame
+                break;
+            }
+        }
+
+        if (!found) {
+            int lruIndex = 0;
+            for (int j = 1; j < capacity; j++) {
+                if (time[j] < time[lruIndex]) {
+                    lruIndex = j;
+                }
+            }
+
+            frames[lruIndex] = pages[i];
+            time[lruIndex] = ++counter; // Update time for the new page
+            pageFaults++;
+        }
+
+        printf("%d\t\t\t", pages[i]);
+        for (int j = 0; j < capacity; j++) {
+            if (frames[j] != -1) {
+                printf("%d ", frames[j]);
+            } else {
+                printf("- ");
+            }
+        }
+        printf("\n");
+    }
+
+    printf("Total Page Faults: %d\n", pageFaults);
+}
+
+int main() {
+    int pages[MAX_PAGES], frames[MAX_FRAMES];
+    int n, capacity;
+
+    printf("Enter the number of pages: ");
+    scanf("%d", &n);
+    printf("Enter the page reference string:\n");
+    for (int i = 0; i < n; i++) {
+        printf("Page %d: ", i + 1);
+        scanf("%d", &pages[i]);
+    }
+
+    printf("Enter the number of frames: ");
+    scanf("%d", &capacity);
+
+    lruPaging(pages, n, frames, capacity);
+
+    return 0;
+}
